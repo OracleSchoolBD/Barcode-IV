@@ -1,1 +1,250 @@
 # Barcode-IV
+
+declare
+    L_RCVM_MRR_NO VARCHAR2(50);
+    L_RCVM_MRR_DATE DATE;
+    L_RCVM_CHALL_NO VARCHAR2(50);
+    L_RCVM_CHALL_DATE DATE;
+    L_POM_NO VARCHAR2(50);
+    L_POM_DATE DATE;
+    L_POM_QUOT_NO VARCHAR2(50);
+    L_POM_QUOT_DATE DATE;
+    L_SUPP_NAME VARCHAR2(100);
+    L_SUPP_ADDRESS VARCHAR2(250);
+    L_RCVM_REMARKS VARCHAR2(500);
+    
+CURSOR C_YRD IS  
+select  ROWNUM AS SL_NO,
+        RCVD_ID,
+        SOM_JOB_NO,
+        ITEM_CODE,
+        ITEM_NAME,
+        RCVD_SPECIFICATION,
+        ITEM_UOM,
+        RCVD_COLOR,
+        RCVD_LOT_NO,
+        RCVD_LOCATION,
+        RCVD_QTY,
+        RCVD_RATE,
+        NVL(RCVD_QTY,0) * NVL(RCVD_RATE,0) AS AMT
+from YARN_RECEIVE_DTL,ITEM_MST,STYLE_ORDER_MST
+where RCVD_SOM_ID=SOM_ID(+)
+and RCVD_EX_ITEM_ID=ITEM_ID
+and RCVD_RCVM_ID = 11844;
+
+begin
+
+begin
+select RCVM_MRR_NO,
+       RCVM_MRR_DATE,
+       RCVM_CHALL_NO,
+       RCVM_CHALL_DATE,
+       POM_NO,
+       POM_DATE,
+       POM_QUOT_NO,
+       POM_QUOT_DATE,
+       SUPP_NAME,
+       SUPP_ADDRESS,
+       RCVM_REMARKS
+INTO L_RCVM_MRR_NO,L_RCVM_MRR_DATE,L_RCVM_CHALL_NO,L_RCVM_CHALL_DATE,L_POM_NO,L_POM_DATE,L_POM_QUOT_NO,L_POM_QUOT_DATE,L_SUPP_NAME,L_SUPP_ADDRESS,L_RCVM_REMARKS
+from YARN_RECEIVE_MST,
+     PO_MST,
+     SUPPLIER_DTL
+where RCVM_POM_ID = POM_ID(+)
+and RCVM_SUPP_ID = SUPP_ID(+)
+and RCVM_ID = 11844;
+exception when others then null;
+end;
+htp.p('
+<div style="overflow:auto !important;" id="RegionDiv">
+    <style>
+        #tbl-rpt td, #tbl-rpt th {
+            padding: 8px 3px !important;
+            border: 1px solid #aaaaaa;
+            font-size: 9px;
+        }
+        hr,p{margin: 0px;}
+        hr {border: 1px solid #cacaca;}
+        td{font-size:11px;}
+
+        @font-face {
+            font-family: BarCodeFont;
+            src: url("#APP_IMAGES#ADVHC39C.TTF") format("truetype");
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
+	<table style="width: 210mm; border: 1px solid #cacaca; !important; margin: 0px auto;" cellpadding="6" cellspacing="0">
+        <tr>
+            <td align="center">
+                <table style="width:100%;">
+                    <tr>
+                        <td style="width:15%;">
+                              <img src="#APP_IMAGES#Crony_Group_Logo.png" width="100%">
+                        </td>
+                        <td>
+                            <p style="font-size: 25px; font-weight: 700;">Crony Group</p>
+                            <p style="font-size: 10px;">100% Export Oriented Organisation</p>
+                            <hr/>
+                            <p style="font-size: 10px;">A CONCERN OF CRONY GROUP</p> 
+                        </td>
+                        <td style="width:30%;font-size: 10px; vertical-align: top;">Level 12 Evergreen Meher Tower, 12/A, Road,<br/>55 Gulshan North Ave, Dhaka 1212</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" align="center" style="padding-bottom: 10px;">
+                            <div style="padding: 3px 30px !important; max-width: 300px; text-align: center; border-radius: 5px; font-size:16px; background:#abcee1 !important;"><strong>Yarn Receiving Report</strong></div>
+                        </td>
+                    </tr>
+                </table>
+
+
+
+                <table style="width:100%;">
+                    <tr>
+                        <td style="width:15%;">MRR No</td>
+                        <td style="width:1%;"><strong>:</strong></td>
+                        <td style="width:34%;"><strong>'|| L_RCVM_MRR_NO ||'</strong></td>
+
+                        <td style="width:15%;">Date</td>
+                        <td style="width:1%;"><strong>:</strong></td>
+                        <td>'|| L_RCVM_MRR_DATE ||'</td>
+                    </tr>
+                    <tr>
+                        <td>Challan No</td>
+                        <td><strong>:</strong></td>
+                        <td><strong>'|| L_RCVM_CHALL_NO ||'</strong></td>
+
+                        <td>Date</td>
+                        <td><strong>:</strong></td>
+                        <td>'|| L_RCVM_CHALL_DATE ||'</td>
+                    </tr>
+                     <tr>
+                        <td>Gate Entry No</td>
+                        <td><strong>:</strong></td>
+                        <td><strong>'|| NULL ||'</strong></td>
+
+                        <td>Yarn Type</td>
+                        <td><strong>:</strong></td>
+                        <td>'|| NULL ||'</td>
+                    </tr>
+                     <tr>
+                        <td>PO No</td>
+                        <td><strong>:</strong></td>
+                        <td><strong>'|| L_POM_NO ||'</strong></td>
+
+                        <td>Date</td>
+                        <td><strong>:</strong></td>
+                        <td>'|| L_POM_DATE ||'</td>
+                    </tr>
+                    <tr>
+                        <td>Quotation No</td>
+                        <td><strong>:</strong></td>
+                        <td><strong>'|| L_POM_QUOT_NO ||'</strong></td>
+
+                        <td>Date</td>
+                        <td><strong>:</strong></td>
+                        <td>'|| L_POM_QUOT_DATE ||'</td>
+                    </tr>
+                    <tr>
+                        <td>Name of Supplier</td>
+                        <td><strong>:</strong></td>
+                        <td><strong>'|| L_SUPP_NAME ||'</strong></td>
+
+                        <td>Address</td>
+                        <td><strong>:</strong></td>
+                        <td>'|| L_SUPP_ADDRESS ||'</td>
+                    </tr>
+                    <tr>
+                        <td>Remarks</td>
+                        <td><strong>:</strong></td>
+                        <td colspan="4"><strong>'|| L_RCVM_REMARKS ||'</strong></td>
+                    </tr>
+                </table>
+
+
+
+                <table id="tbl-rpt"  cellspacing="0" style="width:100%;" >
+                    <tr>
+                        <th>Barcode</th>
+                        <th>SL</th>
+                        <th>Ref. No</th>
+                        <th>Item Code</th>
+                        <th>Item Description</th>
+                        <th>Item Specification</th>
+                        <th>Unit</th>
+                        <th>Color</th>
+                        <th>Lot No</th>
+                        <th>Location</th>
+                        <th>Rcv. Qty</th>
+                        <th>Rate (USD)</th>
+                        <th>Value (USD)</th>
+                        <th>Rate (BDT)</th>
+                        <th>Value (BDT)</th>
+                    </tr>');
+
+                for x in C_YRD
+                loop
+                htp.p('
+                    <tr>
+                        <td><div style="font-family: BarCodeFont;font-size: 3px;">*'|| x.RCVD_ID ||'*</div></td>
+                        <td>' || x.SL_NO ||'</td>
+                        <td>' || x.SOM_JOB_NO ||'</td>
+                        <td>' || x.ITEM_CODE ||'</td>
+                        <td>' || x.ITEM_NAME || '</td>
+                        <td>' || x.RCVD_SPECIFICATION || '</td>
+                        <td>' || x.ITEM_UOM || '</td>
+                        <td>' || x.RCVD_COLOR ||'</td>
+                        <td>' || x.RCVD_LOT_NO ||'</td>
+                        <td>' || x.RCVD_LOCATION ||'</td>
+                        <td>' || x.RCVD_QTY || '</td>
+                        <td>' || x.RCVD_RATE || '</td>
+                        <td>' || x.AMT || '</td>
+                        <td>' || x.RCVD_RATE || '</td>
+                        <td>' || x.AMT || '</td>
+                    </tr>
+                ' );
+                end loop;
+             htp.p('</table>
+                   <br/>
+                   <table style="width:100%;text-align: center;">');
+                        for i in C_YRD
+                        loop
+                            htp.p('<tr>');
+                                for z in 1..3
+                                loop
+                                htp.p('<td style="padding: 25px 10px;"><div style="font-family: BarCodeFont;font-size: 7px;"><strong>*'|| i.RCVD_ID ||'*</strong></div></td>');
+                                end loop;
+                            htp.p('</tr>');
+                        end loop;
+                        htp.p('
+                   </table>
+            </td>
+        </tr>
+	</table>
+</div>');
+end;
+
+
+
+
+
+--=======================
+
+
+$("#btnPrint").click(function(){
+    var headstr = "<html><head><title></title></head><body>";
+    var footstr = "</body>";
+    var newstr = document.getElementById('RegionDiv').innerHTML;
+    var oldstr = document.body.innerHTML;
+    document.body.innerHTML = headstr + newstr + footstr;
+    window.print();
+    document.body.innerHTML = oldstr;
+
+    return false;
+});
+
+
+window.addEventListener("afterprint", (event) => {
+  console.log("After print");
+  window.location.reload(true);
+});
